@@ -1,0 +1,68 @@
+on:
+  workflow_call
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          const { repo, owner } = context.repo;
+          // await new Promise(resolve => setTimeout(() => resolve(), 5000)); // wait merged
+          // Create or Get the release PR
+          let releasePR;
+          try {
+            releasePR = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: 'Preparing release pull request...',
+              head: 'master',
+              base: 'production'
+            });
+          } catch (err) {
+            releasePR = await github.rest.pulls.list({
+              owner,
+              repo,
+              head: 'master',
+              base: 'production',
+              state: 'open'
+            }).then(res => res.data[0]);
+          }
+          const pull_number = releasePR.number;
+          // Get commits for the release PR
+          const shas = await github.paginate(github.rest.pulls.listCommits, {
+            owner,
+            repo,
+            pull_number
+          }).then(commits => commits.map(commit => commit.sha))
+          // Get pulls
+          const mergedPulls = await github.rest.pulls.list({
+            owner,
+            repo,
+            state: 'closed',
+            base: 'master',
+            per_page: 100,
+            sort: 'updated',
+            direction: 'asc'
+          }).then(res => res.data.filter(pull => {
+            return pull.merged_at !== null && shas.indexOf(pull.merge_commit_sha) > -1;
+          }));
+          // Release PR title
+          let title;
+          const version = mergedPulls.map(pull => (pull.title.match(/Bump to (.*)/i) || [])[1]).find(v => v)
+          if (version) {
+            title = `Release ${version}`;
+          } else {
+            const pad = n => String(n).padStart(2, '0');
+            const d = new Date();
+            title = `Release ${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} GMT`
+          }
+          // Update the release PR
+          github.rest.pulls.update({
+            owner,
+            repo,
+            pull_number,
+            title,
+            body: mergedPulls.map(p => '- \#' + p.number + '\n').join('')
+          })
