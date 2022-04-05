@@ -21,7 +21,7 @@ jobs:
               title: 'Preparing release pull request...',
               head: 'master',
               base: 'production'
-            });
+            }).then(res => res.data);
           } catch (err) {
             releasePR = await github.rest.pulls.list({
               owner,
