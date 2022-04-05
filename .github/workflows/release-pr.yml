@@ -38,6 +38,7 @@ jobs:
             repo,
             pull_number
           }).then(commits => commits.map(commit => commit.sha))
+          console.log(shas);
           // Get pulls
           const mergedPulls = await github.rest.pulls.list({
             owner,
@@ -48,8 +49,10 @@ jobs:
             sort: 'updated',
             direction: 'asc'
           }).then(res => res.data.filter(pull => {
+            console.log(pull.merge_commit_sha);
             return pull.merged_at !== null && shas.indexOf(pull.merge_commit_sha) > -1;
           }));
+          console.log(mergedPulls.map(p => p.number));
           // Release PR title
           let title;
           const version = mergedPulls.map(pull => (pull.title.match(/Bump to (.*)/i) || [])[1]).find(v => v)
