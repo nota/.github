@@ -7,6 +7,8 @@ jobs:
     steps:
     - uses: actions/github-script@v6
       with:
+        # Those implementations are based on https://github.com/uiur/github-pr-release
+        # Rewriting with octokit, async/await etc...
         script: |
           const { repo, owner } = context.repo;
           // await new Promise(resolve => setTimeout(() => resolve(), 5000)); // wait merged
