@@ -38,8 +38,10 @@ jobs:
             repo,
             pull_number
           }).then(commits => commits.map(commit => commit.sha))
+          console.log('SHAs in the release PR:')
           console.log(shas);
           // Get pulls
+          console.log('merge_commit_shas of candidates pulls:');
           const mergedPulls = await github.rest.pulls.list({
             owner,
             repo,
@@ -52,6 +54,7 @@ jobs:
             console.log(pull.merge_commit_sha);
             return pull.merged_at !== null && shas.indexOf(pull.merge_commit_sha) > -1;
           }));
+          console.log('Resulted pulls:');
           console.log(mergedPulls.map(p => p.number));
           // Release PR title
           let title;
@@ -69,5 +72,5 @@ jobs:
             repo,
             pull_number,
             title,
-            body: mergedPulls.map(p => '- \#' + p.number + '\n').join('')
+            body: mergedPulls.reverse().map(p => '- \#' + p.number + '\n').join('')
           })
