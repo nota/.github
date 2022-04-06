@@ -38,7 +38,7 @@ jobs:
             repo,
             pull_number
           }).then(commits => commits.map(commit => commit.sha))
-          console.log('SHAs in the release PR:')
+          console.log('Shas in the release PR:')
           console.log(shas);
           // Get pulls
           console.log('merge_commit_shas of candidates pulls:');
