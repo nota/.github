@@ -47,7 +47,7 @@ jobs:
             base: 'master',
             per_page: 100,
             sort: 'updated',
-            direction: 'asc'
+            direction: 'desc'
           }).then(res => res.data.filter(pull => {
             console.log(pull.merge_commit_sha);
             return pull.merged_at !== null && shas.indexOf(pull.merge_commit_sha) > -1;
