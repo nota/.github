@@ -29,7 +29,7 @@ jobs:
                 const pr = prs[n];
                 //console.log(`${tag_name}(${pull.number}): ${n} => ${pr?.number}`);
                 if (pr) {
-                  return `\#${pr.number} ${pr.title} @${pr.user.login}`;
+                  return `\#${pr.number} ${pr.title}`;
                 } else {
                   return m;
                 }
@@ -39,7 +39,7 @@ jobs:
                   owner,
                   repo,
                   tag_name,
-                  target_commitish: pull.merge_commit_sha, //'production',
+                  target_commitish: pull.merge_commit_sha,
                   name: pull.title,
                   body
                 });
