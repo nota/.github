@@ -1,0 +1,61 @@
+on:
+  workflow_call
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          const { repo, owner } = context.repo;
+          const createRelease = async (pull) => {
+            const [_, version] = pull.title.match(/^Release\s+(.+)$/) || [];
+            if (version) {
+              const tag_name = version.replace(/[\s:]/g, (c) => c == ':' ? '' : '-').replace(/^([^v])/, `v$1`);
+              // NOTE: cannot use await in replaceAll
+              const regexp = /#([0-9]+)/g;
+              const prs = await Promise.all([...pull.body.matchAll(regexp)].map(async (m) => {
+                const pull_number = m[1];
+                const pr = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number
+                }).then(res => res.data);
+                return pr;
+              })).then(prs => prs.reduce((h, pr) => { h[pr.number] = pr; return h }, {}));
+              console.log(`${tag_name}(${pull.number}):: await pulls.get done prs=${Object.keys(prs)}`);
+              const body = `Release PR \#${pull.number}\n\n\#\#\# Changes\n` + pull.body.replaceAll(regexp, (m, n) => {
+                const pr = prs[n];
+                //console.log(`${tag_name}(${pull.number}): ${n} => ${pr?.number}`);
+                if (pr) {
+                  return `\#${pr.number} ${pr.title} @${pr.user.login}`;
+                } else {
+                  return m;
+                }
+              });
+              try {
+                await github.rest.repos.createRelease({
+                  owner,
+                  repo,
+                  tag_name,
+                  target_commitish: pull.merge_commit_sha, //'production',
+                  name: pull.title,
+                  body
+                });
+              } catch {}
+            }
+          }
+          // Try to create release for recent release PRs
+          await github.rest.pulls.list({
+            owner,
+            repo,
+            head: 'master',
+            base: 'production',
+            state: 'closed',
+            sort: 'updated',
+            direction: 'desc'
+          }).then(async (res) => {
+            const pulls = res.data;
+            await Promise.all(pulls.map(createRelease));
+          });
