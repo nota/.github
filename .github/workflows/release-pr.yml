@@ -72,5 +72,5 @@ jobs:
             repo,
             pull_number,
             title,
-            body: mergedPulls.reverse().map(p => '- \#' + p.number + '\n').join('')
+            body: mergedPulls.reverse().map(p => `- \#${p.number} @${p.user?.login}\n`).join('')
           })
