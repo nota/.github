@@ -69,5 +69,5 @@ jobs:
               })
             });
             console.log(pulls.map(pull => pull.title));
-            //await Promise.all(pulls.map(createRelease));
+            await Promise.all(pulls.map(createRelease));
           });
