@@ -59,7 +59,8 @@ jobs:
             base: 'production',
             state: 'closed',
             sort: 'updated',
-            direction: 'desc'
+            direction: 'desc',
+            limit: 10
           }).then(async (res) => {
             // Ignore already created releases
             const pulls = res.data.filter(pull => {
