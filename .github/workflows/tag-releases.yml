@@ -46,6 +46,13 @@ jobs:
               } catch {}
             }
           }
+          // Get list of releases
+          const releases = await github.rest.repos.listReleases({
+            owner,
+            repo
+          }).then(res => res.data);
+          console.log(releases.map(r => [r.name, r.tag_name, r.target_commitish]));
+
           // Try to create release for recent release PRs
           await github.rest.pulls.list({
             owner,
@@ -57,5 +64,5 @@ jobs:
             direction: 'desc'
           }).then(async (res) => {
             const pulls = res.data;
-            await Promise.all(pulls.map(createRelease));
+            //await Promise.all(pulls.map(createRelease));
           });
