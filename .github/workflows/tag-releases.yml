@@ -46,6 +46,11 @@ jobs:
               } catch {}
             }
           }
+          // Get list of releases
+          const releases = await github.rest.repos.listReleases({
+            owner,
+            repo
+          }).then(res => res.data);
           // Try to create release for recent release PRs
           await github.rest.pulls.list({
             owner,
@@ -54,8 +59,16 @@ jobs:
             base: 'production',
             state: 'closed',
             sort: 'updated',
-            direction: 'desc'
+            direction: 'desc',
+            limit: 10
           }).then(async (res) => {
-            const pulls = res.data;
+            // Ignore already created releases
+            const pulls = res.data.filter(pull => {
+              return !releases.find(rel => {
+                return (rel.target_commitish === pull.merge_commit_sha)
+                       || (rel.name === pull.title);
+              })
+            });
+            console.log(pulls.map(pull => pull.title));
             await Promise.all(pulls.map(createRelease));
           });
