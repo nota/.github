@@ -51,8 +51,6 @@ jobs:
             owner,
             repo
           }).then(res => res.data);
-          console.log(releases.map(r => [r.name, r.tag_name, r.target_commitish]));
-
           // Try to create release for recent release PRs
           await github.rest.pulls.list({
             owner,
@@ -63,6 +61,13 @@ jobs:
             sort: 'updated',
             direction: 'desc'
           }).then(async (res) => {
-            const pulls = res.data;
+            // Ignore already created releases
+            const pulls = res.data.filter(pull => {
+              return !releases.find(rel => {
+                return (rel.target_commitish === pull.merge_commit_sha)
+                       || (rel.name === pull.title);
+              })
+            });
+            console.log(pulls.map(pull => pull.title));
             //await Promise.all(pulls.map(createRelease));
           });
