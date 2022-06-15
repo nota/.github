@@ -15,3 +15,13 @@ jobs:
               issue_number: context.issue.number,
               labels: [LABEL],
             });
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const UNLABEL = 'In Progress';
+            github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: UNLABEL,
+            });
