@@ -23,6 +23,7 @@ jobs:
               base: 'production'
             }).then(res => res.data);
           } catch (err) {
+            console.log(err)
             releasePR = await github.rest.pulls.list({
               owner,
               repo,
