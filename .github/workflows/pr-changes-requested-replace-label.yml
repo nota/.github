@@ -32,7 +32,7 @@ jobs:
       - uses: actions/github-script@v6
         with:
           script: |
-            const UNLABEL = 'Shit It';
+            const UNLABEL = 'Ship It';
             try {
               github.rest.issues.removeLabel({
                 owner: context.repo.owner,
