@@ -19,9 +19,27 @@ jobs:
         with:
           script: |
             const UNLABEL = 'Review/QA';
-            github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              name: UNLABEL,
-            });
+            try {
+              github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: UNLABEL,
+              });
+            } catch (e) {
+              if (e.status !== 404) throw e
+            }
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const UNLABEL = 'Shit It';
+            try {
+              github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: UNLABEL,
+              });
+            } catch (e) {
+              if (e.status !== 404) throw e
+            }
