@@ -16,6 +16,7 @@ jobs:
               labels: [LABEL],
             });
       - uses: actions/github-script@v6
+        if: contains(github.event.pull_request.labels.*.name, 'In Progress')
         with:
           script: |
             const UNLABEL = 'In Progress';
