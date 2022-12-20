@@ -16,30 +16,24 @@ jobs:
               labels: [LABEL],
             });
       - uses: actions/github-script@v6
+        if: contains(github.event.pull_request.labels.*.name, 'Review/QA')
         with:
           script: |
             const UNLABEL = 'Review/QA';
-            try {
-              github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: UNLABEL,
-              });
-            } catch (e) {
-              if (e.status !== 404) throw e
-            }
+            github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: UNLABEL,
+            });
       - uses: actions/github-script@v6
+        if: contains(github.event.pull_request.labels.*.name, 'Ship It')
         with:
           script: |
             const UNLABEL = 'Ship It';
-            try {
-              github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: UNLABEL,
-              });
-            } catch (e) {
-              if (e.status !== 404) throw e
-            }
+            github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: UNLABEL,
+            });

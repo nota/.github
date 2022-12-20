@@ -16,16 +16,13 @@ jobs:
               labels: [LABEL],
             });
       - uses: actions/github-script@v6
+        if: contains(github.event.pull_request.labels.*.name, 'In Progress')
         with:
           script: |
             const UNLABEL = 'In Progress';
-            try {
-              github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: UNLABEL,
-              });
-            } catch (e) {
-              if (e.status !== 404) throw e
-            }
+            github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: UNLABEL,
+            });
