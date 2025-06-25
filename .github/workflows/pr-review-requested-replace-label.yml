@@ -20,9 +20,18 @@ jobs:
         with:
           script: |
             const UNLABEL = 'In Progress';
-            github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              name: UNLABEL,
-            });
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: UNLABEL,
+              });
+              console.log(`Successfully removed label: ${UNLABEL}`);
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Label ${UNLABEL} does not exist, skipping removal`);
+              } else {
+                throw error;
+              }
+            }
